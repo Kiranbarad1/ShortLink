@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "app/api/**/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/s/:slug",
+      "destination": "/api/redirect/:slug"
+    }
+  ]
+}
