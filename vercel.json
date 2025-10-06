@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/s/:slug",
-      "destination": "/api/redirect/:slug"
-    }
-  ]
-}
