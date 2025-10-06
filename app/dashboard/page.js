@@ -15,21 +15,23 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Check for payment success/cancel in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const payment = urlParams.get('payment');
-    if (payment === 'success') {
-      toast.success('Payment successful! Your plan has been upgraded.');
-      // Clean URL
-      window.history.replaceState({}, document.title, '/dashboard');
-    } else if (payment === 'cancelled') {
-      toast.error('Payment cancelled.');
-      window.history.replaceState({}, document.title, '/dashboard');
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const payment = urlParams.get('payment');
+      if (payment === 'success') {
+        toast.success('Payment successful! Your plan has been upgraded.');
+        // Clean URL
+        window.history.replaceState({}, document.title, '/dashboard');
+      } else if (payment === 'cancelled') {
+        toast.error('Payment cancelled.');
+        window.history.replaceState({}, document.title, '/dashboard');
+      }
     }
   }, []);
 
   useEffect(() => {
     if (status === 'loading') return;
-    
+
     if (!session) {
       router.push('/auth/login');
       return;
@@ -44,12 +46,12 @@ export default function DashboardPage() {
         fetch('/api/links'),
         fetch('/api/user-plan')
       ]);
-      
+
       if (linksRes.ok) {
         const data = await linksRes.json();
         setLinks(data);
       }
-      
+
       if (userRes.ok) {
         const userData = await userRes.json();
         setUserPlan(userData.plan || 'free');
@@ -92,13 +94,12 @@ export default function DashboardPage() {
           <p className="text-lg text-gray-600 dark:text-gray-400">
             Manage your short links and track their performance
           </p>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-            userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
-            userPlan === 'premium' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
-            'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-          }`}>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
+              userPlan === 'premium' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
+                'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+            }`}>
             {userPlan === 'premium_plus' ? '👑 Premium Plus' :
-             userPlan === 'premium' ? '⭐ Premium' : '🆓 Free'}
+              userPlan === 'premium' ? '⭐ Premium' : '🆓 Free'}
           </span>
         </div>
       </div>

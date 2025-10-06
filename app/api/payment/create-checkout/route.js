@@ -13,7 +13,7 @@ export async function POST(request) {
     }
 
     const { plan } = await request.json();
-    
+
     const prices = {
       premium: { amount: 500, name: 'Premium Plan - 30 Day Links' }, // $5
       premium_plus: { amount: 1500, name: 'Premium Plus - Lifetime Links' } // $15
@@ -38,7 +38,7 @@ export async function POST(request) {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.NEXTAUTH_URL}/dashboard?payment=success&plan=${plan}&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.NEXTAUTH_URL}/dashboard?payment=success`,
       cancel_url: `${process.env.NEXTAUTH_URL}/dashboard?payment=cancelled`,
       metadata: {
         userId: session.user.id,

@@ -10,6 +10,7 @@ export default function Navbar() {
   const { data: session } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userPlan, setUserPlan] = useState('free');
   const router = useRouter();
 
   useEffect(() => {
@@ -22,8 +23,25 @@ export default function Navbar() {
         setIsAdmin(false);
       }
     };
+
+    // Get user plan if logged in
+    const getUserPlan = async () => {
+      if (session?.user) {
+        try {
+          const response = await fetch('/api/user-plan');
+          if (response.ok) {
+            const data = await response.json();
+            setUserPlan(data.plan || 'free');
+          }
+        } catch {
+          setUserPlan('free');
+        }
+      }
+    };
+
     checkAdmin();
-  }, []);
+    getUserPlan();
+  }, [session]);
 
   const handleAdminLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' });
@@ -69,7 +87,16 @@ export default function Navbar() {
               </>
             ) : session ? (
               <>
-                <span className="text-gray-700 dark:text-gray-300">Hi, {session.user?.name || session.user?.email}</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-700 dark:text-gray-300">Hi, {session.user?.name || session.user?.email}</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
+                      userPlan === 'premium' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
+                        'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                    }`}>
+                    {userPlan === 'premium_plus' ? '👑 Plus' :
+                      userPlan === 'premium' ? '⭐ Pro' : '🆓 Free'}
+                  </span>
+                </div>
                 <button
                   onClick={() => signOut()}
                   className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
@@ -129,7 +156,16 @@ export default function Navbar() {
                 </>
               ) : session ? (
                 <>
-                  <span className="text-gray-700 dark:text-gray-300 px-3 py-2">Hi, {session.user?.name || session.user?.email}</span>
+                  <div className="px-3 py-2">
+                    <span className="text-gray-700 dark:text-gray-300">Hi, {session.user?.name || session.user?.email}</span>
+                    <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800' :
+                        userPlan === 'premium' ? 'bg-purple-100 text-purple-800' :
+                          'bg-gray-100 text-gray-800'
+                      }`}>
+                      {userPlan === 'premium_plus' ? '👑 Plus' :
+                        userPlan === 'premium' ? '⭐ Pro' : '🆓 Free'}
+                    </span>
+                  </div>
                   <button
                     onClick={() => signOut()}
                     className="text-left text-red-600 hover:text-red-700 px-3 py-2 rounded-md"
