@@ -38,7 +38,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (status === 'loading') return;
-
+    
     if (!session) {
       router.push('/auth/login');
       return;
@@ -53,12 +53,12 @@ export default function DashboardPage() {
         fetch('/api/links'),
         fetch('/api/user-plan')
       ]);
-
+      
       if (linksRes.ok) {
         const data = await linksRes.json();
         setLinks(data);
       }
-
+      
       if (userRes.ok) {
         const userData = await userRes.json();
         setUserPlan(userData.plan || 'free');
@@ -102,12 +102,13 @@ export default function DashboardPage() {
             Manage your short links and track their performance
           </p>
           <div className="flex items-center space-x-2">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
-                userPlan === 'premium' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
-                  'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-              }`}>
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+              userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
+              userPlan === 'premium' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
+              'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+            }`}>
               {userPlan === 'premium_plus' ? '👑 Premium Plus' :
-                userPlan === 'premium' ? '⭐ Premium' : '🆓 Free'}
+               userPlan === 'premium' ? '⭐ Premium' : '🆓 Free'}
             </span>
             <button
               onClick={fetchLinks}

@@ -23,7 +23,7 @@ export default function Navbar() {
         setIsAdmin(false);
       }
     };
-
+    
     // Get user plan if logged in
     const getUserPlan = async () => {
       if (session?.user) {
@@ -38,7 +38,7 @@ export default function Navbar() {
         }
       }
     };
-
+    
     checkAdmin();
     getUserPlan();
   }, [session]);
@@ -89,12 +89,13 @@ export default function Navbar() {
               <>
                 <div className="flex items-center space-x-2">
                   <span className="text-gray-700 dark:text-gray-300">Hi, {session.user?.name || session.user?.email}</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
-                      userPlan === 'premium' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
-                        'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                    }`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
+                    userPlan === 'premium' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
+                    'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                  }`}>
                     {userPlan === 'premium_plus' ? '👑 Plus' :
-                      userPlan === 'premium' ? '⭐ Pro' : '🆓 Free'}
+                     userPlan === 'premium' ? '⭐ Pro' : '🆓 Free'}
                   </span>
                 </div>
                 <button
@@ -158,12 +159,13 @@ export default function Navbar() {
                 <>
                   <div className="px-3 py-2">
                     <span className="text-gray-700 dark:text-gray-300">Hi, {session.user?.name || session.user?.email}</span>
-                    <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800' :
-                        userPlan === 'premium' ? 'bg-purple-100 text-purple-800' :
-                          'bg-gray-100 text-gray-800'
-                      }`}>
+                    <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                      userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800' :
+                      userPlan === 'premium' ? 'bg-purple-100 text-purple-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
                       {userPlan === 'premium_plus' ? '👑 Plus' :
-                        userPlan === 'premium' ? '⭐ Pro' : '🆓 Free'}
+                       userPlan === 'premium' ? '⭐ Pro' : '🆓 Free'}
                     </span>
                   </div>
                   <button

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
-function ResetPasswordForm() {
+export default function ResetPassword() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -77,13 +77,5 @@ function ResetPasswordForm() {
         </button>
       </form>
     </div>
-  );
-}
-
-export default function ResetPassword() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ResetPasswordForm />
-    </Suspense>
   );
 }

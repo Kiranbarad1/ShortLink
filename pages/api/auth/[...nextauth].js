@@ -31,6 +31,45 @@ export const authOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Initialize default plans on first sign in
+      const client = await clientPromise;
+      const db = client.db();
+      
+      const planCount = await db.collection("plans").countDocuments();
+      if (planCount === 0) {
+        await db.collection("plans").insertMany([
+          {
+            name: "free",
+            displayName: "Free",
+            price: 0,
+            linkExpiryDays: 7,
+            customAliasAllowed: true,
+            features: ["7-day expiry", "Custom aliases"],
+            isActive: true
+          },
+          {
+            name: "premium",
+            displayName: "Premium",
+            price: 5,
+            linkExpiryDays: 30,
+            customAliasAllowed: true,
+            features: ["30-day expiry", "Custom aliases", "Priority support"],
+            isActive: true
+          },
+          {
+            name: "premium_plus",
+            displayName: "Premium Plus",
+            price: 15,
+            linkExpiryDays: 0,
+            customAliasAllowed: true,
+            features: ["Lifetime links", "Custom aliases", "Priority support", "Advanced analytics"],
+            isActive: true
+          }
+        ]);
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user?.id) token.id = user.id;
       return token;

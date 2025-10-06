@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../../pages/api/auth/[...nextauth]';
+import dbConnect from '../../../../lib/dbConnect';
+import Plan from '../../../../models/Plan';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -13,14 +15,17 @@ export async function POST(request) {
     }
 
     const { plan } = await request.json();
-
-    const prices = {
-      premium: { amount: 500, name: 'Premium Plan - 30 Day Links' }, // $5
-      premium_plus: { amount: 1500, name: 'Premium Plus - Lifetime Links' } // $15
-    };
-
-    if (!prices[plan]) {
+    
+    await dbConnect();
+    
+    // Get plan configuration from database
+    const planConfig = await Plan.findOne({ name: plan, isActive: true });
+    if (!planConfig) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
+    }
+    
+    if (planConfig.price === 0) {
+      return NextResponse.json({ error: 'Cannot purchase free plan' }, { status: 400 });
     }
 
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -30,9 +35,10 @@ export async function POST(request) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: prices[plan].name,
+              name: `${planConfig.displayName} Plan`,
+              description: planConfig.features.join(', '),
             },
-            unit_amount: prices[plan].amount,
+            unit_amount: planConfig.price,
           },
           quantity: 1,
         },

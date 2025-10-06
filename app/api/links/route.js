@@ -4,8 +4,6 @@ import { authOptions } from '../../../pages/api/auth/[...nextauth]';
 import dbConnect from '../../../lib/dbConnect';
 import Link from '../../../models/Link';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET() {
   try {
     await dbConnect();

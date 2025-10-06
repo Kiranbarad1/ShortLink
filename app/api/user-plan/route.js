@@ -4,8 +4,6 @@ import { authOptions } from '../../../pages/api/auth/[...nextauth]';
 import clientPromise from '../../../lib/mongodb';
 import { ObjectId } from 'mongodb';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);

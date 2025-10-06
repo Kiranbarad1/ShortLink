@@ -3,7 +3,10 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../pages/api/auth/[...nextauth]';
 import dbConnect from '../../../lib/dbConnect';
 import Link from '../../../models/Link';
+import Plan from '../../../models/Plan';
 import { nanoid } from 'nanoid';
+import clientPromise from '../../../lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export async function POST(request) {
   try {
@@ -54,39 +57,50 @@ export async function POST(request) {
       } while (await Link.findOne({ shortCode }));
     }
 
-    // Get user plan (default to free for logged users, anonymous for non-logged)
-    let userPlan = 'free';
+    // Get user plan and plan configuration from database
+    let userPlanName = 'free';
+    let planConfig = null;
+    
     if (session?.user?.id) {
-      const clientPromise = (await import('../../../lib/mongodb')).default;
       const client = await clientPromise;
       const db = client.db();
-      const { ObjectId } = await import('mongodb');
       const user = await db.collection('users').findOne({ _id: new ObjectId(session.user.id) });
-      userPlan = user?.plan || 'free';
+      userPlanName = user?.plan || 'free';
+    }
+    
+    // Get plan configuration from database
+    planConfig = await Plan.findOne({ name: userPlanName, isActive: true });
+    if (!planConfig) {
+      // Fallback to free plan if plan not found
+      planConfig = await Plan.findOne({ name: 'free', isActive: true });
     }
 
-    // Create the link with expiry based on plan
+    // Check if custom alias is allowed for this plan
+    if (customAlias && !planConfig.customAliasAllowed) {
+      return NextResponse.json({ 
+        error: 'Custom aliases not available in your current plan' 
+      }, { status: 403 });
+    }
+
+    // Create the link with expiry based on plan configuration
     const linkData = {
       userId: session?.user?.id || null,
       originalUrl,
       shortCode,
       customAlias: customAlias || null,
-      userPlan,
+      userPlan: userPlanName,
     };
 
-    // Set expiry based on user plan
+    // Set expiry based on plan configuration
     if (!session?.user?.id) {
-      // Anonymous users: 1 day
+      // Anonymous users: 1 day (hardcoded for security)
       linkData.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
       linkData.fingerprint = request.headers.get('x-forwarded-for') || request.headers.get('user-agent') || 'anonymous';
-    } else if (userPlan === 'free') {
-      // Free users: 7 days
-      linkData.expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    } else if (userPlan === 'premium') {
-      // Premium users: 30 days
-      linkData.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    } else if (planConfig.linkExpiryDays) {
+      // Set expiry based on plan configuration
+      linkData.expiresAt = new Date(Date.now() + planConfig.linkExpiryDays * 24 * 60 * 60 * 1000);
     }
-    // Premium Plus users: no expiry (expiresAt remains null)
+    // If linkExpiryDays is null, no expiry (expiresAt remains undefined)
 
     const link = new Link(linkData);
 

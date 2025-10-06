@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 
@@ -10,6 +10,23 @@ export default function ShortenForm({ onLinkCreated }) {
   const [customAlias, setCustomAlias] = useState('');
   const [isCustom, setIsCustom] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [plans, setPlans] = useState([]);
+
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  const fetchPlans = async () => {
+    try {
+      const response = await fetch('/api/plans');
+      if (response.ok) {
+        const data = await response.json();
+        setPlans(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch plans:', error);
+    }
+  };
 
   const handleUpgrade = async (plan) => {
     try {
@@ -190,32 +207,46 @@ export default function ShortenForm({ onLinkCreated }) {
         </div>
       ) : (
         <div className="mt-6 space-y-4">
-          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200 text-center">
-              ⏰ Your links will expire in <strong>7 days</strong> (Free Plan)
-            </p>
-          </div>
+          {plans.find(p => p.name === 'free') && (
+            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200 text-center">
+                ⏰ Your links will expire in <strong>{plans.find(p => p.name === 'free')?.linkExpiryDays} days</strong> (Free Plan)
+              </p>
+            </div>
+          )}
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg text-center">
-              <h4 className="font-semibold text-purple-800 dark:text-purple-200">Premium Plan</h4>
-              <p className="text-sm text-purple-600 dark:text-purple-300">30-day expiry • $5/month</p>
-              <button 
-                onClick={() => handleUpgrade('premium')}
-                className="mt-2 px-4 py-2 bg-purple-600 text-white rounded text-sm hover:bg-purple-700"
-              >
-                Upgrade
-              </button>
-            </div>
-            <div className="p-4 bg-gold-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg text-center">
-              <h4 className="font-semibold text-yellow-800 dark:text-yellow-200">Premium Plus</h4>
-              <p className="text-sm text-yellow-600 dark:text-yellow-300">Lifetime links • $15/month</p>
-              <button 
-                onClick={() => handleUpgrade('premium_plus')}
-                className="mt-2 px-4 py-2 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700"
-              >
-                Upgrade
-              </button>
-            </div>
+            {plans.filter(plan => plan.price > 0).map((plan) => (
+              <div key={plan.name} className={`p-4 border rounded-lg text-center ${
+                plan.name === 'premium' 
+                  ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800'
+                  : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+              }`}>
+                <h4 className={`font-semibold ${
+                  plan.name === 'premium'
+                    ? 'text-purple-800 dark:text-purple-200'
+                    : 'text-yellow-800 dark:text-yellow-200'
+                }`}>
+                  {plan.displayName}
+                </h4>
+                <p className={`text-sm ${
+                  plan.name === 'premium'
+                    ? 'text-purple-600 dark:text-purple-300'
+                    : 'text-yellow-600 dark:text-yellow-300'
+                }`}>
+                  {plan.linkExpiryDays ? `${plan.linkExpiryDays}-day expiry` : 'Lifetime links'} • ${(plan.price / 100).toFixed(2)}/month
+                </p>
+                <button 
+                  onClick={() => handleUpgrade(plan.name)}
+                  className={`mt-2 px-4 py-2 text-white rounded text-sm ${
+                    plan.name === 'premium'
+                      ? 'bg-purple-600 hover:bg-purple-700'
+                      : 'bg-yellow-600 hover:bg-yellow-700'
+                  }`}
+                >
+                  Upgrade
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       )}
