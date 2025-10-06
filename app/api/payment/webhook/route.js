@@ -38,8 +38,8 @@ export async function POST(request) {
       );
 
       // Extend existing user links based on new plan
-      const dbConnect = (await import('../../../lib/dbConnect')).default;
-      const Link = (await import('../../../models/Link')).default;
+      const dbConnect = (await import('../../../../lib/dbConnect')).default;
+      const Link = (await import('../../../../models/Link')).default;
 
       await dbConnect();
 
