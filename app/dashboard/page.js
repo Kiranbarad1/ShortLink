@@ -23,6 +23,10 @@ export default function DashboardPage() {
         toast.success('Payment successful! Your plan has been upgraded.');
         // Clean URL
         window.history.replaceState({}, document.title, '/dashboard');
+        // Refresh data after payment
+        setTimeout(() => {
+          fetchLinks();
+        }, 2000); // Wait 2 seconds for webhook to process
       } else if (payment === 'cancelled') {
         toast.error('Payment cancelled.');
         window.history.replaceState({}, document.title, '/dashboard');

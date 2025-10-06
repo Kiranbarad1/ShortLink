@@ -25,16 +25,37 @@ export async function POST(request) {
       // Update user plan in database
       const client = await clientPromise;
       const db = client.db();
-      
+
       await db.collection('users').updateOne(
         { _id: new ObjectId(userId) },
-        { 
-          $set: { 
+        {
+          $set: {
             plan: plan,
             planUpdatedAt: new Date(),
             stripeSessionId: session.id
-          } 
+          }
         }
+      );
+
+      // Extend existing user links based on new plan
+      const dbConnect = (await import('../../../lib/dbConnect')).default;
+      const Link = (await import('../../../models/Link')).default;
+
+      await dbConnect();
+
+      let newExpiry;
+      if (plan === 'premium') {
+        // Premium: 30 days from now
+        newExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      } else if (plan === 'premium_plus') {
+        // Premium Plus: no expiry
+        newExpiry = null;
+      }
+
+      // Update all user's existing links
+      await Link.updateMany(
+        { userId: userId },
+        { $set: { expiresAt: newExpiry, userPlan: plan } }
       );
 
       console.log(`User ${userId} upgraded to ${plan}`);
