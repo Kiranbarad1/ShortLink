@@ -7,10 +7,10 @@ export const dynamic = 'force-dynamic';
 export async function GET(request) {
   try {
     await dbConnect();
-
+    
     const fingerprint = request.headers.get('x-forwarded-for') || request.headers.get('user-agent') || 'anonymous';
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
+    
     const links = await Link.find({
       userId: null, // Anonymous links
       fingerprint: fingerprint, // Only this user's links
@@ -20,9 +20,9 @@ export async function GET(request) {
         { expiresAt: { $gt: new Date() } } // Not expired
       ]
     })
-      .sort({ createdAt: -1 })
-      .limit(10)
-      .lean();
+    .sort({ createdAt: -1 })
+    .limit(10)
+    .lean();
 
     return NextResponse.json(links);
 

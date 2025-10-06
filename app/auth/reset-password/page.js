@@ -51,25 +51,25 @@ function ResetPasswordForm() {
 
       <form onSubmit={onSubmit} className="space-y-3">
         <div className="relative">
-          <input
-            className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded pr-10 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            type={showPassword ? "text" : "password"}
-            placeholder="New Password (min 6 characters)"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+          <input 
+            className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded pr-10 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+            type={showPassword ? "text" : "password"} 
+            placeholder="New Password (min 6 characters)" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
             required
             minLength={6}
           />
-          <button
-            type="button"
-            className="absolute right-3 top-2.5 text-gray-500 dark:text-gray-400"
+          <button 
+            type="button" 
+            className="absolute right-3 top-2.5 text-gray-500 dark:text-gray-400" 
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? "🙈" : "👁️"}
           </button>
         </div>
-        <button
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
+        <button 
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-blue-400" 
           type="submit"
           disabled={loading}
         >

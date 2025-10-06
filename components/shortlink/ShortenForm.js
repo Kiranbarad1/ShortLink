@@ -197,59 +197,60 @@ export default function ShortenForm({ onLinkCreated }) {
         </div>
       </form>
 
-      {!session ? (
-        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <p className="text-sm text-blue-800 dark:text-blue-200 text-center">
-            <a href="/auth/login" className="font-medium hover:underline">
-              Sign in
-            </a> for custom LINK and 7-day expiry! (Anonymous: 1 day, Premium: 30 days, Premium+: Lifetime)
-          </p>
-        </div>
-      ) : (
-        <div className="mt-6 space-y-4">
-          {plans.find(p => p.name === 'free') && (
+      <div className="mt-6 space-y-4">
+        {!session ? (
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p className="text-sm text-blue-800 dark:text-blue-200 text-center">
+              <a href="/auth/login" className="font-medium hover:underline">
+                Sign in
+              </a> for custom aliases and longer expiry! (Anonymous: 1 day)
+            </p>
+          </div>
+        ) : (
+          plans.find(p => p.name === 'free') && (
             <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
               <p className="text-sm text-yellow-800 dark:text-yellow-200 text-center">
-                ⏰ Your links will expire in <strong>{plans.find(p => p.name === 'free')?.linkExpiryDays} days</strong> (Free Plan)
+                ⏰ Your links expire in <strong>{plans.find(p => p.name === 'free')?.linkExpiryDays} days</strong> (Free Plan)
               </p>
             </div>
-          )}
-          <div className="grid md:grid-cols-2 gap-4">
-            {plans.filter(plan => plan.price > 0).map((plan) => (
-              <div key={plan.name} className={`p-4 border rounded-lg text-center ${
-                plan.name === 'premium' 
-                  ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800'
-                  : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+          )
+        )}
+        
+        <div className="grid md:grid-cols-2 gap-4">
+          {plans.filter(plan => plan.price > 0).map((plan) => (
+            <div key={plan.name} className={`p-4 border rounded-lg text-center ${
+              plan.name === 'premium' 
+                ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800'
+                : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+            }`}>
+              <h4 className={`font-semibold ${
+                plan.name === 'premium'
+                  ? 'text-purple-800 dark:text-purple-200'
+                  : 'text-yellow-800 dark:text-yellow-200'
               }`}>
-                <h4 className={`font-semibold ${
+                {plan.displayName}
+              </h4>
+              <p className={`text-sm ${
+                plan.name === 'premium'
+                  ? 'text-purple-600 dark:text-purple-300'
+                  : 'text-yellow-600 dark:text-yellow-300'
+              }`}>
+                {plan.linkExpiryDays ? `${plan.linkExpiryDays}-day expiry` : 'Lifetime links'} • ${(plan.price / 100).toFixed(2)}
+              </p>
+              <button 
+                onClick={() => session ? handleUpgrade(plan.name) : (window.location.href = '/auth/login')}
+                className={`mt-2 px-4 py-2 text-white rounded text-sm ${
                   plan.name === 'premium'
-                    ? 'text-purple-800 dark:text-purple-200'
-                    : 'text-yellow-800 dark:text-yellow-200'
-                }`}>
-                  {plan.displayName}
-                </h4>
-                <p className={`text-sm ${
-                  plan.name === 'premium'
-                    ? 'text-purple-600 dark:text-purple-300'
-                    : 'text-yellow-600 dark:text-yellow-300'
-                }`}>
-                  {plan.linkExpiryDays ? `${plan.linkExpiryDays}-day expiry` : 'Lifetime links'} • ${(plan.price / 100).toFixed(2)}/month
-                </p>
-                <button 
-                  onClick={() => handleUpgrade(plan.name)}
-                  className={`mt-2 px-4 py-2 text-white rounded text-sm ${
-                    plan.name === 'premium'
-                      ? 'bg-purple-600 hover:bg-purple-700'
-                      : 'bg-yellow-600 hover:bg-yellow-700'
-                  }`}
-                >
-                  Upgrade
-                </button>
-              </div>
-            ))}
-          </div>
+                    ? 'bg-purple-600 hover:bg-purple-700'
+                    : 'bg-yellow-600 hover:bg-yellow-700'
+                }`}
+              >
+                {session ? 'Upgrade' : 'Sign in to Upgrade'}
+              </button>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }

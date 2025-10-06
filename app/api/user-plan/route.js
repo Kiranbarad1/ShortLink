@@ -15,15 +15,15 @@ export async function GET() {
 
     const client = await clientPromise;
     const db = client.db();
-
+    
     const user = await db.collection('users').findOne(
       { _id: new ObjectId(session.user.id) },
       { projection: { plan: 1, planUpdatedAt: 1 } }
     );
 
-    return NextResponse.json({
+    return NextResponse.json({ 
       plan: user?.plan || 'free',
-      planUpdatedAt: user?.planUpdatedAt
+      planUpdatedAt: user?.planUpdatedAt 
     });
   } catch (error) {
     console.error('User plan error:', error);

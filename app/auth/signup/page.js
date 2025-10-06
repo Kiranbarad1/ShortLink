@@ -1,16 +1,25 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getProviders, signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 
 export default function Signup() {
+  const [providers, setProviders] = useState({});
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      const p = await getProviders();
+      setProviders(p || {});
+    })();
+  }, []);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -84,6 +93,17 @@ export default function Signup() {
           {loading ? "Creating Account..." : "Sign Up"}
         </button>
       </form>
+
+      <div className="my-6 h-px bg-gray-200 dark:bg-gray-700" />
+
+      {providers?.google && (
+        <button
+          className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700"
+          onClick={() => signIn(providers.google.id, { callbackUrl: "/" })}
+        >
+          Continue with Google
+        </button>
+      )}
       
       <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
         Already have an account?{" "}
