@@ -26,7 +26,9 @@ export default function DashboardPage() {
         // Refresh data after payment
         setTimeout(() => {
           fetchLinks();
-        }, 2000); // Wait 2 seconds for webhook to process
+        }, 5000); // Wait 5 seconds for webhook to process
+        // Also refresh immediately
+        fetchLinks();
       } else if (payment === 'cancelled') {
         toast.error('Payment cancelled.');
         window.history.replaceState({}, document.title, '/dashboard');
@@ -99,13 +101,22 @@ export default function DashboardPage() {
           <p className="text-lg text-gray-600 dark:text-gray-400">
             Manage your short links and track their performance
           </p>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
-              userPlan === 'premium' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
-                'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-            }`}>
-            {userPlan === 'premium_plus' ? '👑 Premium Plus' :
-              userPlan === 'premium' ? '⭐ Premium' : '🆓 Free'}
-          </span>
+          <div className="flex items-center space-x-2">
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${userPlan === 'premium_plus' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
+                userPlan === 'premium' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
+                  'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+              }`}>
+              {userPlan === 'premium_plus' ? '👑 Premium Plus' :
+                userPlan === 'premium' ? '⭐ Premium' : '🆓 Free'}
+            </span>
+            <button
+              onClick={fetchLinks}
+              className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400"
+              title="Refresh plan status"
+            >
+              🔄
+            </button>
+          </div>
         </div>
       </div>
 

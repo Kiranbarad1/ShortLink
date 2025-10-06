@@ -22,11 +22,13 @@ export async function POST(request) {
       const session = event.data.object;
       const { userId, plan } = session.metadata;
 
+      console.log('Webhook received:', { userId, plan, sessionId: session.id });
+
       // Update user plan in database
       const client = await clientPromise;
       const db = client.db();
 
-      await db.collection('users').updateOne(
+      const userUpdate = await db.collection('users').updateOne(
         { _id: new ObjectId(userId) },
         {
           $set: {
@@ -36,6 +38,8 @@ export async function POST(request) {
           }
         }
       );
+
+      console.log('User update result:', userUpdate);
 
       // Extend existing user links based on new plan
       const dbConnect = (await import('../../../../lib/dbConnect')).default;
@@ -53,12 +57,13 @@ export async function POST(request) {
       }
 
       // Update all user's existing links
-      await Link.updateMany(
+      const linkUpdate = await Link.updateMany(
         { userId: userId },
         { $set: { expiresAt: newExpiry, userPlan: plan } }
       );
 
-      console.log(`User ${userId} upgraded to ${plan}`);
+      console.log('Links update result:', linkUpdate);
+      console.log(`User ${userId} upgraded to ${plan} successfully`);
     }
 
     return NextResponse.json({ received: true });
