@@ -4,12 +4,14 @@ import { authOptions } from '../../../pages/api/auth/[...nextauth]';
 import dbConnect from '../../../lib/dbConnect';
 import Link from '../../../models/Link';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     await dbConnect();
-    
+
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
